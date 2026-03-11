@@ -56,6 +56,7 @@ public class VelocityMessageHandler {
                 lastServer = plugin.getConfig().getDefaultSurvivalServer();
             }
 
+            plugin.getPendingBedSpawn().add(playerUUID);
             player.sendMessage(MiniMessage.miniMessage().deserialize(
                     plugin.getConfig().getMessage("lobby-death-transfer")));
             plugin.transferToServer(player, lastServer);

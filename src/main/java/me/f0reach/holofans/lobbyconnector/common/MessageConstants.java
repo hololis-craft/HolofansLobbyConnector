@@ -7,6 +7,7 @@ public final class MessageConstants {
     public static final String TELEPORT_SPAWN = "TELEPORT_SPAWN";
     public static final String START_DAMAGE_TRACKING = "START_DAMAGE_TRACKING";
     public static final String CANCEL_DAMAGE_TRACKING = "CANCEL_DAMAGE_TRACKING";
+    public static final String TELEPORT_BED_SPAWN = "TELEPORT_BED_SPAWN";
 
     // Paper → Velocity
     public static final String DAMAGE_CLEAR = "DAMAGE_CLEAR";

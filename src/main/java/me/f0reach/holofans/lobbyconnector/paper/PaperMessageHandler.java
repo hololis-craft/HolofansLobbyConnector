@@ -5,6 +5,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import me.f0reach.holofans.lobbyconnector.common.MessageConstants;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
@@ -27,6 +28,7 @@ public class PaperMessageHandler implements PluginMessageListener {
 
         switch (messageId) {
             case MessageConstants.TELEPORT_SPAWN -> handleTeleportSpawn(in);
+            case MessageConstants.TELEPORT_BED_SPAWN -> handleTeleportBedSpawn(in);
             case MessageConstants.START_DAMAGE_TRACKING -> handleStartDamageTracking(in);
             case MessageConstants.CANCEL_DAMAGE_TRACKING -> handleCancelDamageTracking(in);
         }
@@ -37,6 +39,19 @@ public class PaperMessageHandler implements PluginMessageListener {
         Player player = Bukkit.getPlayer(playerUUID);
         if (player != null) {
             player.teleport(player.getWorld().getSpawnLocation());
+        }
+    }
+
+    private void handleTeleportBedSpawn(ByteArrayDataInput in) {
+        UUID playerUUID = UUID.fromString(in.readUTF());
+        Player player = Bukkit.getPlayer(playerUUID);
+        if (player != null) {
+            Location respawn = player.getRespawnLocation();
+            if (respawn != null) {
+                player.teleport(respawn);
+            } else {
+                player.teleport(player.getWorld().getSpawnLocation());
+            }
         }
     }
 

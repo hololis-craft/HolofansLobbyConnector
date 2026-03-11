@@ -15,9 +15,13 @@ import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import me.f0reach.holofans.lobbyconnector.common.MessageConstants;
 import org.slf4j.Logger;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -38,6 +42,7 @@ public class VelocityPlugin {
     private final VelocityConfig config;
     private final PlayerDataManager playerDataManager;
     private final Map<UUID, Boolean> pendingLobbyTransfer = new ConcurrentHashMap<>();
+    private final Set<UUID> pendingBedSpawn = ConcurrentHashMap.newKeySet();
 
     @Inject
     public VelocityPlugin(ProxyServer server, Logger logger, @DataDirectory Path dataDirectory) {
@@ -84,13 +89,21 @@ public class VelocityPlugin {
     @Subscribe
     public void onServerPostConnect(ServerPostConnectEvent event) {
         Player player = event.getPlayer();
-        String currentServer = player.getCurrentServer()
-                .map(s -> s.getServerInfo().getName())
-                .orElse(null);
+        player.getCurrentServer().ifPresent(serverConnection -> {
+            String currentServer = serverConnection.getServerInfo().getName();
 
-        if (currentServer != null && !currentServer.equalsIgnoreCase(config.getLobbyServer())) {
-            playerDataManager.setLastServer(player.getUniqueId(), currentServer);
-        }
+            if (!currentServer.equalsIgnoreCase(config.getLobbyServer())) {
+                playerDataManager.setLastServer(player.getUniqueId(), currentServer);
+            }
+
+            // If player was transferred after lobby death, teleport to bed/world spawn
+            if (pendingBedSpawn.remove(player.getUniqueId())) {
+                ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                out.writeUTF(MessageConstants.TELEPORT_BED_SPAWN);
+                out.writeUTF(player.getUniqueId().toString());
+                serverConnection.sendPluginMessage(CHANNEL, out.toByteArray());
+            }
+        });
     }
 
     @Subscribe
@@ -108,7 +121,9 @@ public class VelocityPlugin {
 
     @Subscribe
     public void onDisconnect(DisconnectEvent event) {
-        pendingLobbyTransfer.remove(event.getPlayer().getUniqueId());
+        UUID uuid = event.getPlayer().getUniqueId();
+        pendingLobbyTransfer.remove(uuid);
+        pendingBedSpawn.remove(uuid);
     }
 
     public void transferToLobby(Player player) {
@@ -141,5 +156,9 @@ public class VelocityPlugin {
 
     public Map<UUID, Boolean> getPendingLobbyTransfer() {
         return pendingLobbyTransfer;
+    }
+
+    public Set<UUID> getPendingBedSpawn() {
+        return pendingBedSpawn;
     }
 }
