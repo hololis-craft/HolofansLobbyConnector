@@ -28,7 +28,6 @@ public class PaperMessageHandler implements PluginMessageListener {
 
         switch (messageId) {
             case MessageConstants.TELEPORT_SPAWN -> handleTeleportSpawn(in);
-            case MessageConstants.TELEPORT_BED_SPAWN -> handleTeleportBedSpawn(in);
             case MessageConstants.START_DAMAGE_TRACKING -> handleStartDamageTracking(in);
             case MessageConstants.CANCEL_DAMAGE_TRACKING -> handleCancelDamageTracking(in);
         }
@@ -36,22 +35,11 @@ public class PaperMessageHandler implements PluginMessageListener {
 
     private void handleTeleportSpawn(ByteArrayDataInput in) {
         UUID playerUUID = UUID.fromString(in.readUTF());
+        boolean useBedSpawn = in.readBoolean();
         Player player = Bukkit.getPlayer(playerUUID);
         if (player != null) {
-            player.teleport(player.getWorld().getSpawnLocation());
-        }
-    }
-
-    private void handleTeleportBedSpawn(ByteArrayDataInput in) {
-        UUID playerUUID = UUID.fromString(in.readUTF());
-        Player player = Bukkit.getPlayer(playerUUID);
-        if (player != null) {
-            Location respawn = player.getRespawnLocation();
-            if (respawn != null) {
-                player.teleport(respawn);
-            } else {
-                player.teleport(player.getWorld().getSpawnLocation());
-            }
+            Location respawn = useBedSpawn ? player.getRespawnLocation() : null;
+            player.teleport(respawn != null ? respawn : player.getWorld().getSpawnLocation());
         }
     }
 

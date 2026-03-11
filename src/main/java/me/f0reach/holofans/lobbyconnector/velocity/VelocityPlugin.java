@@ -99,8 +99,9 @@ public class VelocityPlugin {
             // If player was transferred after lobby death, teleport to bed/world spawn
             if (pendingBedSpawn.remove(player.getUniqueId())) {
                 ByteArrayDataOutput out = ByteStreams.newDataOutput();
-                out.writeUTF(MessageConstants.TELEPORT_BED_SPAWN);
+                out.writeUTF(MessageConstants.TELEPORT_SPAWN);
                 out.writeUTF(player.getUniqueId().toString());
+                out.writeBoolean(true); // useBedSpawn
                 serverConnection.sendPluginMessage(CHANNEL, out.toByteArray());
             }
         });

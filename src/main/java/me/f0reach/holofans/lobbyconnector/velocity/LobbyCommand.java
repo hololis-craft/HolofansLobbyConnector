@@ -38,6 +38,7 @@ public final class LobbyCommand {
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF(MessageConstants.TELEPORT_SPAWN);
             out.writeUTF(player.getUniqueId().toString());
+            out.writeBoolean(false); // useBedSpawn
             currentServerOpt.get().sendPluginMessage(VelocityPlugin.CHANNEL, out.toByteArray());
             player.sendMessage(MiniMessage.miniMessage().deserialize(
                     config.getMessage("lobby-teleport-spawn")));
