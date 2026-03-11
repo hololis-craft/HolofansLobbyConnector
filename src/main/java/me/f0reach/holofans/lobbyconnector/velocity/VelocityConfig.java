@@ -14,6 +14,18 @@ public class VelocityConfig {
     private String lobbyServer = "lobby";
     private String defaultSurvivalServer = "survival";
     private final Map<String, ServerConfig> servers = new HashMap<>();
+    private final Map<String, String> messages = new HashMap<>();
+
+    // Message key defaults
+    private static final Map<String, String> DEFAULT_MESSAGES = Map.of(
+            "lobby-teleport-spawn", "<green>スポーン地点に移動しました。",
+            "lobby-transfer-immediate", "<green>ロビーに移動します...",
+            "lobby-transfer-delayed", "<yellow>ロビーに移動します。<white><seconds><yellow>秒間ダメージを受けないでください。",
+            "lobby-transfer-damage-clear", "<green>ロビーに移動します...",
+            "lobby-death-transfer", "<yellow>直前のサーバに移動します...",
+            "default-survival-enabled", "<green>デフォルトサバイバルを有効にしました。次回接続時からサバイバルサーバに直接接続します。",
+            "default-survival-disabled", "<yellow>デフォルトサバイバルを無効にしました。次回接続時からロビーに接続します。"
+    );
 
     public static class ServerConfig {
         private final String mode;
@@ -67,6 +79,18 @@ public class VelocityConfig {
                     }
                 }
             }
+
+            // Load messages with defaults
+            messages.putAll(DEFAULT_MESSAGES);
+            Config messagesConfig = config.get("messages");
+            if (messagesConfig != null) {
+                for (Config.Entry entry : messagesConfig.entrySet()) {
+                    Object value = entry.getValue();
+                    if (value instanceof String s) {
+                        messages.put(entry.getKey(), s);
+                    }
+                }
+            }
         }
     }
 
@@ -80,5 +104,9 @@ public class VelocityConfig {
 
     public ServerConfig getServerConfig(String serverName) {
         return servers.getOrDefault(serverName, new ServerConfig("immediate", 0));
+    }
+
+    public String getMessage(String key) {
+        return messages.getOrDefault(key, DEFAULT_MESSAGES.getOrDefault(key, key));
     }
 }

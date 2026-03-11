@@ -42,7 +42,7 @@ public class VelocityMessageHandler {
 
         plugin.getServer().getPlayer(playerUUID).ifPresent(player -> {
             player.sendMessage(MiniMessage.miniMessage().deserialize(
-                    "<green>ロビーに移動します..."));
+                    plugin.getConfig().getMessage("lobby-transfer-damage-clear")));
             plugin.transferToLobby(player);
         });
     }
@@ -57,7 +57,7 @@ public class VelocityMessageHandler {
             }
 
             player.sendMessage(MiniMessage.miniMessage().deserialize(
-                    "<yellow>直前のサーバに移動します..."));
+                    plugin.getConfig().getMessage("lobby-death-transfer")));
             plugin.transferToServer(player, lastServer);
         });
     }

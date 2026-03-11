@@ -4,6 +4,7 @@ import me.f0reach.holofans.lobbyconnector.common.MessageConstants;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -111,7 +112,8 @@ public class DamageTracker implements Listener {
     private Component buildBossBarName(TrackingData data) {
         int seconds = (int) Math.ceil(data.remainingTicks / 20.0);
         return MiniMessage.miniMessage().deserialize(
-                "<yellow>ロビーに移動中... <white>" + seconds + "<yellow>秒");
+                plugin.getMessage("bossbar-countdown"),
+                Placeholder.unparsed("seconds", String.valueOf(seconds)));
     }
 
     @EventHandler
@@ -134,7 +136,7 @@ public class DamageTracker implements Listener {
         data.bossBar.name(buildBossBarName(data));
 
         player.sendMessage(MiniMessage.miniMessage().deserialize(
-                "<red>ダメージを受けたためカウンターがリセットされました。"));
+                plugin.getMessage("damage-reset")));
 
         startTimer(uuid, data);
     }

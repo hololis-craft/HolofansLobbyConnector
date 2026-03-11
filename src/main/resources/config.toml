@@ -8,3 +8,12 @@ default-survival-server = "survival"
 
   [servers.creative]
   mode = "immediate"
+
+[messages]
+  lobby-teleport-spawn = "<green>スポーン地点に移動しました。"
+  lobby-transfer-immediate = "<green>ロビーに移動します..."
+  lobby-transfer-delayed = "<yellow>ロビーに移動します。<white><seconds><yellow>秒間ダメージを受けないでください。"
+  lobby-transfer-damage-clear = "<green>ロビーに移動します..."
+  lobby-death-transfer = "<yellow>直前のサーバに移動します..."
+  default-survival-enabled = "<green>デフォルトサバイバルを有効にしました。次回接続時からサバイバルサーバに直接接続します。"
+  default-survival-disabled = "<yellow>デフォルトサバイバルを無効にしました。次回接続時からロビーに接続します。"

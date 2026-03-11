@@ -9,6 +9,8 @@ public final class PaperPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        saveDefaultConfig();
+
         damageTracker = new DamageTracker(this);
 
         Messenger messenger = getServer().getMessenger();
@@ -36,5 +38,10 @@ public final class PaperPlugin extends JavaPlugin {
 
     public DamageTracker getDamageTracker() {
         return damageTracker;
+    }
+
+    public String getMessage(String key) {
+        String path = "messages." + key;
+        return getConfig().getString(path, key);
     }
 }

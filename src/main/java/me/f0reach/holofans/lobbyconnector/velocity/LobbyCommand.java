@@ -7,6 +7,7 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ServerConnection;
 import me.f0reach.holofans.lobbyconnector.common.MessageConstants;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import java.util.Optional;
 
@@ -29,21 +30,22 @@ public final class LobbyCommand {
         Optional<ServerConnection> currentServerOpt = player.getCurrentServer();
         if (currentServerOpt.isEmpty()) return;
 
+        VelocityConfig config = plugin.getConfig();
         String currentServer = currentServerOpt.get().getServerInfo().getName();
 
-        if (currentServer.equalsIgnoreCase(plugin.getConfig().getLobbyServer())) {
+        if (currentServer.equalsIgnoreCase(config.getLobbyServer())) {
             // Already in lobby - teleport to spawn
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF(MessageConstants.TELEPORT_SPAWN);
             out.writeUTF(player.getUniqueId().toString());
             currentServerOpt.get().sendPluginMessage(VelocityPlugin.CHANNEL, out.toByteArray());
             player.sendMessage(MiniMessage.miniMessage().deserialize(
-                    "<green>スポーン地点に移動しました。"));
+                    config.getMessage("lobby-teleport-spawn")));
             return;
         }
 
         // Not in lobby - check server config
-        VelocityConfig.ServerConfig serverConfig = plugin.getConfig().getServerConfig(currentServer);
+        VelocityConfig.ServerConfig serverConfig = config.getServerConfig(currentServer);
 
         if (serverConfig.isDelayed()) {
             // Cancel existing tracking if any, then start new
@@ -56,12 +58,12 @@ public final class LobbyCommand {
             currentServerOpt.get().sendPluginMessage(VelocityPlugin.CHANNEL, out.toByteArray());
 
             player.sendMessage(MiniMessage.miniMessage().deserialize(
-                    "<yellow>ロビーに移動します。<white>" + serverConfig.getDelaySeconds()
-                            + "<yellow>秒間ダメージを受けないでください。"));
+                    config.getMessage("lobby-transfer-delayed"),
+                    Placeholder.unparsed("seconds", String.valueOf(serverConfig.getDelaySeconds()))));
         } else {
             // Immediate transfer
             player.sendMessage(MiniMessage.miniMessage().deserialize(
-                    "<green>ロビーに移動します..."));
+                    config.getMessage("lobby-transfer-immediate")));
             plugin.transferToLobby(player);
         }
     }
