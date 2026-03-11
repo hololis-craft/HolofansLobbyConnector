@@ -1,0 +1,5 @@
+name: HolofansLobbyConnector
+version: '${version}'
+main: me.f0reach.holofans.lobbyconnector.paper.PaperPlugin
+api-version: '1.21'
+authors: [f0reachARR]

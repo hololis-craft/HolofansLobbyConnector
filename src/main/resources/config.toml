@@ -1,0 +1,10 @@
+lobby-server = "lobby"
+default-survival-server = "survival"
+
+[servers]
+  [servers.survival]
+  mode = "delayed"
+  delay-seconds = 5
+
+  [servers.creative]
+  mode = "immediate"
