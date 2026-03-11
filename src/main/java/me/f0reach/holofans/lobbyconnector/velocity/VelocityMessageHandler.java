@@ -21,7 +21,7 @@ public class VelocityMessageHandler {
     @Subscribe
     public void onPluginMessage(PluginMessageEvent event) {
         if (!event.getIdentifier().equals(VelocityPlugin.CHANNEL)) return;
-        if (!(event.getSource() instanceof ServerConnection)) return;
+        if (!(event.getSource() instanceof ServerConnection serverConnection)) return;
 
         event.setResult(PluginMessageEvent.ForwardResult.handled());
 
@@ -30,7 +30,7 @@ public class VelocityMessageHandler {
 
         switch (messageId) {
             case MessageConstants.DAMAGE_CLEAR -> handleDamageClear(in);
-            case MessageConstants.LOBBY_DEATH -> handleLobbyDeath(in);
+            case MessageConstants.LOBBY_DEATH -> handleLobbyDeath(in, serverConnection);
         }
     }
 
@@ -47,8 +47,13 @@ public class VelocityMessageHandler {
         });
     }
 
-    private void handleLobbyDeath(ByteArrayDataInput in) {
+    private void handleLobbyDeath(ByteArrayDataInput in, ServerConnection serverConnection) {
         UUID playerUUID = UUID.fromString(in.readUTF());
+
+        if (!serverConnection.getServerInfo().getName()
+                .equalsIgnoreCase(plugin.getConfig().getLobbyServer())) {
+            return;
+        }
 
         plugin.getServer().getPlayer(playerUUID).ifPresent(player -> {
             String lastServer = plugin.getPlayerDataManager().getLastServer(playerUUID);
