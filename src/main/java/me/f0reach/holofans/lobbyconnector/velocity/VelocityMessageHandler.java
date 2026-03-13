@@ -1,15 +1,12 @@
 package me.f0reach.holofans.lobbyconnector.velocity;
 
-import com.google.common.io.ByteArrayDataInput;
-import com.google.common.io.ByteStreams;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.PluginMessageEvent;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ServerConnection;
-import me.f0reach.holofans.lobbyconnector.common.MessageConstants;
+import me.f0reach.holofans.lobbyconnector.common.PluginMessage;
+import me.f0reach.holofans.lobbyconnector.common.PluginMessageCodec;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-
-import java.util.UUID;
 
 public class VelocityMessageHandler {
     private final VelocityPlugin plugin;
@@ -25,17 +22,18 @@ public class VelocityMessageHandler {
 
         event.setResult(PluginMessageEvent.ForwardResult.handled());
 
-        ByteArrayDataInput in = ByteStreams.newDataInput(event.getData());
-        String messageId = in.readUTF();
+        PluginMessage message = PluginMessageCodec.deserialize(event.getData());
 
-        switch (messageId) {
-            case MessageConstants.DAMAGE_CLEAR -> handleDamageClear(in);
-            case MessageConstants.LOBBY_DEATH -> handleLobbyDeath(in, serverConnection);
+        switch (message) {
+            case PluginMessage.DamageClear damageClear -> handleDamageClear(damageClear);
+            case PluginMessage.LobbyDeath lobbyDeath -> handleLobbyDeath(lobbyDeath, serverConnection);
+            default -> {
+            }
         }
     }
 
-    private void handleDamageClear(ByteArrayDataInput in) {
-        UUID playerUUID = UUID.fromString(in.readUTF());
+    private void handleDamageClear(PluginMessage.DamageClear message) {
+        var playerUUID = message.playerUuid();
 
         // Only transfer if the player still has a pending lobby transfer
         if (plugin.getPendingLobbyTransfer().remove(playerUUID) == null) return;
@@ -47,8 +45,8 @@ public class VelocityMessageHandler {
         });
     }
 
-    private void handleLobbyDeath(ByteArrayDataInput in, ServerConnection serverConnection) {
-        UUID playerUUID = UUID.fromString(in.readUTF());
+    private void handleLobbyDeath(PluginMessage.LobbyDeath message, ServerConnection serverConnection) {
+        var playerUUID = message.playerUuid();
 
         if (!serverConnection.getServerInfo().getName()
                 .equalsIgnoreCase(plugin.getConfig().getLobbyServer())) {

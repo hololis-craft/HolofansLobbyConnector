@@ -13,10 +13,9 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import me.f0reach.holofans.lobbyconnector.common.MessageConstants;
+import me.f0reach.holofans.lobbyconnector.common.PluginMessage;
+import me.f0reach.holofans.lobbyconnector.common.PluginMessageCodec;
 import org.slf4j.Logger;
-
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -98,11 +97,12 @@ public class VelocityPlugin {
 
             // If player was transferred after lobby death, teleport to bed/world spawn
             if (pendingBedSpawn.remove(player.getUniqueId())) {
-                ByteArrayDataOutput out = ByteStreams.newDataOutput();
-                out.writeUTF(MessageConstants.TELEPORT_SPAWN);
-                out.writeUTF(player.getUniqueId().toString());
-                out.writeBoolean(true); // useBedSpawn
-                serverConnection.sendPluginMessage(CHANNEL, out.toByteArray());
+                serverConnection.sendPluginMessage(
+                        CHANNEL,
+                        PluginMessageCodec.serialize(new PluginMessage.TeleportSpawn(
+                                player.getUniqueId(),
+                                true))
+                );
             }
         });
     }

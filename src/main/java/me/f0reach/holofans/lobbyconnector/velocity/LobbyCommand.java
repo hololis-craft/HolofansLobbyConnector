@@ -1,11 +1,10 @@
 package me.f0reach.holofans.lobbyconnector.velocity;
 
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ServerConnection;
-import me.f0reach.holofans.lobbyconnector.common.MessageConstants;
+import me.f0reach.holofans.lobbyconnector.common.PluginMessage;
+import me.f0reach.holofans.lobbyconnector.common.PluginMessageCodec;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
@@ -35,11 +34,10 @@ public final class LobbyCommand {
 
         if (currentServer.equalsIgnoreCase(config.getLobbyServer())) {
             // Already in lobby - teleport to spawn
-            ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeUTF(MessageConstants.TELEPORT_SPAWN);
-            out.writeUTF(player.getUniqueId().toString());
-            out.writeBoolean(false); // useBedSpawn
-            currentServerOpt.get().sendPluginMessage(VelocityPlugin.CHANNEL, out.toByteArray());
+            currentServerOpt.get().sendPluginMessage(
+                    VelocityPlugin.CHANNEL,
+                    PluginMessageCodec.serialize(new PluginMessage.TeleportSpawn(player.getUniqueId(), false))
+            );
             player.sendMessage(MiniMessage.miniMessage().deserialize(
                     config.getMessage("lobby-teleport-spawn")));
             return;
@@ -52,11 +50,12 @@ public final class LobbyCommand {
             // Cancel existing tracking if any, then start new
             plugin.getPendingLobbyTransfer().put(player.getUniqueId(), true);
 
-            ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeUTF(MessageConstants.START_DAMAGE_TRACKING);
-            out.writeUTF(player.getUniqueId().toString());
-            out.writeInt(serverConfig.getDelaySeconds());
-            currentServerOpt.get().sendPluginMessage(VelocityPlugin.CHANNEL, out.toByteArray());
+            currentServerOpt.get().sendPluginMessage(
+                    VelocityPlugin.CHANNEL,
+                    PluginMessageCodec.serialize(new PluginMessage.StartDamageTracking(
+                            player.getUniqueId(),
+                            serverConfig.getDelaySeconds()))
+            );
 
             player.sendMessage(MiniMessage.miniMessage().deserialize(
                     config.getMessage("lobby-transfer-delayed"),

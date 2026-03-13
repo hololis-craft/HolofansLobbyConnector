@@ -1,6 +1,6 @@
 package me.f0reach.holofans.lobbyconnector.paper;
 
-import me.f0reach.holofans.lobbyconnector.common.MessageConstants;
+import me.f0reach.holofans.lobbyconnector.common.PluginMessage;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -36,7 +36,7 @@ public class DeathListener implements Listener {
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             var player = plugin.getServer().getPlayer(uuid);
             if (player != null && player.isOnline()) {
-                PaperMessageHandler.sendMessage(plugin, player, MessageConstants.LOBBY_DEATH, uuid);
+                PaperMessageHandler.sendMessage(plugin, player, new PluginMessage.LobbyDeath(uuid));
             }
         }, 1L);
     }

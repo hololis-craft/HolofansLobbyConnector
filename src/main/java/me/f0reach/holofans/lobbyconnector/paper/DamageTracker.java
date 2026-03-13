@@ -1,6 +1,6 @@
 package me.f0reach.holofans.lobbyconnector.paper;
 
-import me.f0reach.holofans.lobbyconnector.common.MessageConstants;
+import me.f0reach.holofans.lobbyconnector.common.PluginMessage;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -90,7 +90,7 @@ public class DamageTracker implements Listener {
                 Player player = plugin.getServer().getPlayer(uuid);
                 if (player != null && player.isOnline()) {
                     player.hideBossBar(data.bossBar);
-                    PaperMessageHandler.sendMessage(plugin, player, MessageConstants.DAMAGE_CLEAR, uuid);
+                    PaperMessageHandler.sendMessage(plugin, player, new PluginMessage.DamageClear(uuid));
                 }
                 return;
             }
