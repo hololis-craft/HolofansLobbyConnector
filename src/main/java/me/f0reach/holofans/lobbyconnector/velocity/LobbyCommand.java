@@ -11,7 +11,8 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import java.util.Optional;
 
 public final class LobbyCommand {
-    private LobbyCommand() {}
+    private LobbyCommand() {
+    }
 
     public static BrigadierCommand create(VelocityPlugin plugin) {
         var node = BrigadierCommand.literalArgumentBuilder("lobby")
@@ -46,21 +47,28 @@ public final class LobbyCommand {
         // Not in lobby - check server config
         VelocityConfig.ServerConfig serverConfig = config.getServerConfig(currentServer);
 
+        boolean shouldImmediate = !serverConfig.isDelayed();
         if (serverConfig.isDelayed()) {
             // Cancel existing tracking if any, then start new
             plugin.getPendingLobbyTransfer().put(player.getUniqueId(), true);
 
-            currentServerOpt.get().sendPluginMessage(
+            boolean result = currentServerOpt.get().sendPluginMessage(
                     VelocityPlugin.CHANNEL,
                     PluginMessageCodec.serialize(new PluginMessage.StartDamageTracking(
                             player.getUniqueId(),
                             serverConfig.getDelaySeconds()))
             );
 
-            player.sendMessage(MiniMessage.miniMessage().deserialize(
-                    config.getMessage("lobby-transfer-delayed"),
-                    Placeholder.unparsed("seconds", String.valueOf(serverConfig.getDelaySeconds()))));
-        } else {
+            if (result) {
+                player.sendMessage(MiniMessage.miniMessage().deserialize(
+                        config.getMessage("lobby-transfer-delayed"),
+                        Placeholder.unparsed("seconds", String.valueOf(serverConfig.getDelaySeconds()))));
+            } else {
+                shouldImmediate = true; // Fallback to immediate if plugin message fails
+            }
+        }
+
+        if (shouldImmediate) {
             // Immediate transfer
             player.sendMessage(MiniMessage.miniMessage().deserialize(
                     config.getMessage("lobby-transfer-immediate")));
