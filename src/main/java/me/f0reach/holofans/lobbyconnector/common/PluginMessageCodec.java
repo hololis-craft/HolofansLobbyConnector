@@ -7,7 +7,8 @@ import com.google.common.io.ByteStreams;
 import java.util.UUID;
 
 public final class PluginMessageCodec {
-    private PluginMessageCodec() {}
+    private PluginMessageCodec() {
+    }
 
     public static byte[] serialize(PluginMessage message) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
@@ -25,7 +26,7 @@ public final class PluginMessageCodec {
             case PluginMessage.CancelDamageTracking cancelDamageTracking ->
                     writeUuid(out, cancelDamageTracking.playerUuid());
             case PluginMessage.DamageClear damageClear -> writeUuid(out, damageClear.playerUuid());
-            case PluginMessage.LobbyDeath lobbyDeath -> writeUuid(out, lobbyDeath.playerUuid());
+            case PluginMessage.OnDeath onDeath -> writeUuid(out, onDeath.playerUuid());
         }
 
         return out.toByteArray();
@@ -36,14 +37,12 @@ public final class PluginMessageCodec {
         String messageId = in.readUTF();
 
         return switch (messageId) {
-            case MessageConstants.TELEPORT_SPAWN ->
-                    new PluginMessage.TeleportSpawn(readUuid(in), in.readBoolean());
+            case MessageConstants.TELEPORT_SPAWN -> new PluginMessage.TeleportSpawn(readUuid(in), in.readBoolean());
             case MessageConstants.START_DAMAGE_TRACKING ->
                     new PluginMessage.StartDamageTracking(readUuid(in), in.readInt());
-            case MessageConstants.CANCEL_DAMAGE_TRACKING ->
-                    new PluginMessage.CancelDamageTracking(readUuid(in));
+            case MessageConstants.CANCEL_DAMAGE_TRACKING -> new PluginMessage.CancelDamageTracking(readUuid(in));
             case MessageConstants.DAMAGE_CLEAR -> new PluginMessage.DamageClear(readUuid(in));
-            case MessageConstants.LOBBY_DEATH -> new PluginMessage.LobbyDeath(readUuid(in));
+            case MessageConstants.ON_DEATH -> new PluginMessage.OnDeath(readUuid(in));
             default -> throw new IllegalArgumentException("Unknown plugin message id: " + messageId);
         };
     }

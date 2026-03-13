@@ -13,6 +13,7 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import me.f0reach.holofans.lobbyconnector.common.MessageConstants;
+import me.f0reach.holofans.lobbyconnector.common.PermissionConstants;
 import me.f0reach.holofans.lobbyconnector.common.PluginMessage;
 import me.f0reach.holofans.lobbyconnector.common.PluginMessageCodec;
 import org.slf4j.Logger;
@@ -113,7 +114,8 @@ public class VelocityPlugin {
         // Only handle initial connection (player has no current server yet)
         if (player.getCurrentServer().isPresent()) return;
 
-        if (playerDataManager.isDefaultSurvival(player.getUniqueId())) {
+        if (player.hasPermission(PermissionConstants.DEFAULT_SURVIVAL_USE)
+                && playerDataManager.isDefaultSurvival(player.getUniqueId())) {
             server.getServer(config.getDefaultSurvivalServer()).ifPresent(s ->
                     event.setResult(ServerPreConnectEvent.ServerResult.allowed(s))
             );

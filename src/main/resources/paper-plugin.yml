@@ -3,3 +3,10 @@ version: '${version}'
 main: me.f0reach.holofans.lobbyconnector.paper.PaperPlugin
 api-version: '1.21'
 authors: [f0reachARR]
+permissions:
+  holofanslobbyconnector.lobbydeath.transfer:
+    description: Enables the special transfer behavior after dying in the lobby.
+    default: false
+  holofanslobbyconnector.defaultsurvival.use:
+    description: Allows using the /defaultsurvival command and its direct-connect behavior.
+    default: false

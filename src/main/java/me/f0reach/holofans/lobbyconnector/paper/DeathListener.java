@@ -20,10 +20,6 @@ public class DeathListener implements Listener {
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        event.setKeepInventory(true);
-        event.getDrops().clear();
-        event.setDroppedExp(0);
-        event.setKeepLevel(true);
         deadPlayers.add(event.getEntity().getUniqueId());
     }
 
@@ -32,11 +28,11 @@ public class DeathListener implements Listener {
         UUID uuid = event.getPlayer().getUniqueId();
         if (!deadPlayers.remove(uuid)) return;
 
-        // Send LOBBY_DEATH message to Velocity on next tick (after respawn completes)
+        // Send DEATH message to Velocity on next tick (after respawn completes)
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             var player = plugin.getServer().getPlayer(uuid);
             if (player != null && player.isOnline()) {
-                PaperMessageHandler.sendMessage(plugin, player, new PluginMessage.LobbyDeath(uuid));
+                PaperMessageHandler.sendMessage(plugin, player, new PluginMessage.OnDeath(uuid));
             }
         }, 1L);
     }

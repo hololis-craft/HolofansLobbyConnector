@@ -6,7 +6,7 @@ public sealed interface PluginMessage permits PluginMessage.TeleportSpawn,
         PluginMessage.StartDamageTracking,
         PluginMessage.CancelDamageTracking,
         PluginMessage.DamageClear,
-        PluginMessage.LobbyDeath {
+        PluginMessage.OnDeath {
 
     String messageId();
 
@@ -38,10 +38,10 @@ public sealed interface PluginMessage permits PluginMessage.TeleportSpawn,
         }
     }
 
-    record LobbyDeath(UUID playerUuid) implements PluginMessage {
+    record OnDeath(UUID playerUuid) implements PluginMessage {
         @Override
         public String messageId() {
-            return MessageConstants.LOBBY_DEATH;
+            return MessageConstants.ON_DEATH;
         }
     }
 }

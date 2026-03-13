@@ -2,8 +2,8 @@ package me.f0reach.holofans.lobbyconnector.velocity;
 
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.PluginMessageEvent;
-import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ServerConnection;
+import me.f0reach.holofans.lobbyconnector.common.PermissionConstants;
 import me.f0reach.holofans.lobbyconnector.common.PluginMessage;
 import me.f0reach.holofans.lobbyconnector.common.PluginMessageCodec;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -26,7 +26,7 @@ public class VelocityMessageHandler {
 
         switch (message) {
             case PluginMessage.DamageClear damageClear -> handleDamageClear(damageClear);
-            case PluginMessage.LobbyDeath lobbyDeath -> handleLobbyDeath(lobbyDeath, serverConnection);
+            case PluginMessage.OnDeath onDeath -> handleDeath(onDeath, serverConnection);
             default -> {
             }
         }
@@ -45,15 +45,20 @@ public class VelocityMessageHandler {
         });
     }
 
-    private void handleLobbyDeath(PluginMessage.LobbyDeath message, ServerConnection serverConnection) {
+    private void handleDeath(PluginMessage.OnDeath message, ServerConnection serverConnection) {
         var playerUUID = message.playerUuid();
 
+        // Only handle if the player is currently in the lobby server
         if (!serverConnection.getServerInfo().getName()
                 .equalsIgnoreCase(plugin.getConfig().getLobbyServer())) {
             return;
         }
 
         plugin.getServer().getPlayer(playerUUID).ifPresent(player -> {
+            if (!player.hasPermission(PermissionConstants.LOBBY_DEATH_TRANSFER)) {
+                return;
+            }
+
             String lastServer = plugin.getPlayerDataManager().getLastServer(playerUUID);
             if (lastServer == null) {
                 lastServer = plugin.getConfig().getDefaultSurvivalServer();

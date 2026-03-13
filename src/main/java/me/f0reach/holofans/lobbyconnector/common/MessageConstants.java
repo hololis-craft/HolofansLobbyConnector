@@ -10,7 +10,8 @@ public final class MessageConstants {
 
     // Paper → Velocity
     public static final String DAMAGE_CLEAR = "DAMAGE_CLEAR";
-    public static final String LOBBY_DEATH = "LOBBY_DEATH";
+    public static final String ON_DEATH = "LOBBY_DEATH";
 
-    private MessageConstants() {}
+    private MessageConstants() {
+    }
 }
