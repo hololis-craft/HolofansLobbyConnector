@@ -44,4 +44,8 @@ public final class PaperPlugin extends JavaPlugin {
         String path = "messages." + key;
         return getConfig().getString(path, key);
     }
+
+    public String getDefaultWorld() {
+        return getConfig().getString("default-world", "");
+    }
 }

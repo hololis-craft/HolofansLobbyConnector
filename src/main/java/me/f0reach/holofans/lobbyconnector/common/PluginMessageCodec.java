@@ -18,6 +18,7 @@ public final class PluginMessageCodec {
             case PluginMessage.TeleportSpawn teleportSpawn -> {
                 writeUuid(out, teleportSpawn.playerUuid());
                 out.writeBoolean(teleportSpawn.useBedSpawn());
+                out.writeUTF(teleportSpawn.overrideWorld());
             }
             case PluginMessage.StartDamageTracking startDamageTracking -> {
                 writeUuid(out, startDamageTracking.playerUuid());
@@ -37,7 +38,8 @@ public final class PluginMessageCodec {
         String messageId = in.readUTF();
 
         return switch (messageId) {
-            case MessageConstants.TELEPORT_SPAWN -> new PluginMessage.TeleportSpawn(readUuid(in), in.readBoolean());
+            case MessageConstants.TELEPORT_SPAWN ->
+                    new PluginMessage.TeleportSpawn(readUuid(in), in.readBoolean(), in.readUTF());
             case MessageConstants.START_DAMAGE_TRACKING ->
                     new PluginMessage.StartDamageTracking(readUuid(in), in.readInt());
             case MessageConstants.CANCEL_DAMAGE_TRACKING -> new PluginMessage.CancelDamageTracking(readUuid(in));

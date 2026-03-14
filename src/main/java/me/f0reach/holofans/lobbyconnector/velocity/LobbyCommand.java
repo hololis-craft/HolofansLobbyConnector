@@ -37,21 +37,22 @@ public final class LobbyCommand {
             // Already in lobby - teleport to spawn
             currentServerOpt.get().sendPluginMessage(
                     VelocityPlugin.CHANNEL,
-                    PluginMessageCodec.serialize(new PluginMessage.TeleportSpawn(player.getUniqueId(), false))
+                    PluginMessageCodec.serialize(
+                            new PluginMessage.TeleportSpawn(player.getUniqueId(), false, "")
+                    )
             );
             player.sendMessage(MiniMessage.miniMessage().deserialize(
                     config.getMessage("lobby-teleport-spawn")));
             return;
         }
 
+        plugin.getPendingLobbyTransfer().put(player.getUniqueId(), true);
+
         // Not in lobby - check server config
         VelocityConfig.ServerConfig serverConfig = config.getServerConfig(currentServer);
 
         boolean shouldImmediate = !serverConfig.isDelayed();
         if (serverConfig.isDelayed()) {
-            // Cancel existing tracking if any, then start new
-            plugin.getPendingLobbyTransfer().put(player.getUniqueId(), true);
-
             boolean result = currentServerOpt.get().sendPluginMessage(
                     VelocityPlugin.CHANNEL,
                     PluginMessageCodec.serialize(new PluginMessage.StartDamageTracking(
@@ -64,6 +65,8 @@ public final class LobbyCommand {
                         config.getMessage("lobby-transfer-delayed"),
                         Placeholder.unparsed("seconds", String.valueOf(serverConfig.getDelaySeconds()))));
             } else {
+                plugin.getLogger().warn("Failed to send plugin message to {} for delayed lobby transfer, falling back to immediate transfer",
+                        player.getUsername());
                 shouldImmediate = true; // Fallback to immediate if plugin message fails
             }
         }

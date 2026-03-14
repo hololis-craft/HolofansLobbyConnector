@@ -5,9 +5,12 @@ import me.f0reach.holofans.lobbyconnector.common.PluginMessage;
 import me.f0reach.holofans.lobbyconnector.common.PluginMessageCodec;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 public class PaperMessageHandler implements PluginMessageListener {
     private final PaperPlugin plugin;
@@ -37,7 +40,23 @@ public class PaperMessageHandler implements PluginMessageListener {
         Player player = Bukkit.getPlayer(message.playerUuid());
         if (player != null) {
             Location respawn = message.useBedSpawn() ? player.getRespawnLocation() : null;
-            player.teleport(respawn != null ? respawn : player.getWorld().getSpawnLocation());
+            if (respawn == null) {
+                if (message.overrideWorld() != null && !message.overrideWorld().isEmpty()) {
+                    World world = Bukkit.getWorld(message.overrideWorld());
+                    if (world != null) {
+                        respawn = world.getSpawnLocation();
+                    }
+                } else if (!plugin.getDefaultWorld().isEmpty()) {
+                    World world = Bukkit.getWorld(plugin.getDefaultWorld());
+                    if (world != null) {
+                        respawn = world.getSpawnLocation();
+                    }
+                }
+            }
+            if (respawn == null) {
+                respawn = player.getWorld().getSpawnLocation();
+            }
+            player.teleport(respawn);
         }
     }
 

@@ -102,9 +102,24 @@ public class VelocityPlugin {
                         CHANNEL,
                         PluginMessageCodec.serialize(new PluginMessage.TeleportSpawn(
                                 player.getUniqueId(),
-                                true))
+                                true,
+                                ""
+                        ))
+                );
+            } else if (pendingLobbyTransfer.remove(player.getUniqueId()) != null) {
+                // If player was transferred to lobby, teleport to lobby spawn
+                serverConnection.sendPluginMessage(
+                        CHANNEL,
+                        PluginMessageCodec.serialize(new PluginMessage.TeleportSpawn(
+                                player.getUniqueId(),
+                                false,
+                                ""
+                        ))
                 );
             }
+
+            // Clear pending lobby transfer flag on any server connect to prevent stale state
+            pendingLobbyTransfer.remove(player.getUniqueId());
         });
     }
 

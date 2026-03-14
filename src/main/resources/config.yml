@@ -1,3 +1,4 @@
 messages:
   bossbar-countdown: "<yellow>ロビーに移動中... <white><seconds><yellow>秒"
   damage-reset: "<red>ダメージを受けたためカウンターがリセットされました。"
+default-world: "world"

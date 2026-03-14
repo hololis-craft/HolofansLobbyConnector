@@ -35,9 +35,6 @@ public class VelocityMessageHandler {
     private void handleDamageClear(PluginMessage.DamageClear message) {
         var playerUUID = message.playerUuid();
 
-        // Only transfer if the player still has a pending lobby transfer
-        if (plugin.getPendingLobbyTransfer().remove(playerUUID) == null) return;
-
         plugin.getServer().getPlayer(playerUUID).ifPresent(player -> {
             player.sendMessage(MiniMessage.miniMessage().deserialize(
                     plugin.getConfig().getMessage("lobby-transfer-damage-clear")));

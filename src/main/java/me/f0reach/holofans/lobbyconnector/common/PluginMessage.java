@@ -10,7 +10,7 @@ public sealed interface PluginMessage permits PluginMessage.TeleportSpawn,
 
     String messageId();
 
-    record TeleportSpawn(UUID playerUuid, boolean useBedSpawn) implements PluginMessage {
+    record TeleportSpawn(UUID playerUuid, boolean useBedSpawn, String overrideWorld) implements PluginMessage {
         @Override
         public String messageId() {
             return MessageConstants.TELEPORT_SPAWN;
